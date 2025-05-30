@@ -2,7 +2,7 @@
 
 Project ini adalah backend API sederhana menggunakan Node.js dan Express.
 
-## 📦 Instalasi
+## Instalasi
 
 Jalankan perintah berikut untuk meng-install dependencies:
 
@@ -11,7 +11,6 @@ npm install
 
 ```
 
-📁 File Konfigurasi
-Salin `dbConnection_example.js` menjadi `dbConnection.js` dan sesuaikan isinya:
-```bash
-cp dbConnection_example.js dbConnection.js
+## File Konfigurasi
+
+Rename `dbConnection_example.js` menjadi `dbConnection.js` dan sesuaikan isinya
