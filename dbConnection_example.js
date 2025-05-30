@@ -2,10 +2,10 @@ const mysql = require("mysql2");
 
 // Buat koneksi
 const db = mysql.createConnection({
-    host: "localhost", // sesuaikan dengan host MySQL kamu
-    user: "root", // user MySQL kamu
-    password: "", // password MySQL kamu
-    database: "laundry", // ganti dengan nama database kamu
+    host: "localhost", // sesuaikan dengan host MySQL yang digunakan
+    user: "root", // user MySQL
+    password: "", // password MySQL
+    database: "", // ganti dengan nama database yang digunakan
 });
 
 // Tes koneksi
