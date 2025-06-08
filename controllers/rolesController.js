@@ -15,26 +15,27 @@ exports.getAllRoles = (req, res) => {
 
         res.status(200).json({
             success: true,
-            roles: results,
+            data: {
+                roles: results,
+            },
         });
     });
 };
 
 // roles : method post
 exports.createRoles = async (req, res) => {
-    const role = req.body;
-
-    if (!role) {
-        return res.status(400).json({
-            success: false,
-            message: "Role required",
-        });
-    }
-
     try {
         const sql = "INSERT INTO roles (role) VALUES (?)";
+        const { role } = req.body;
 
-        db.query(sql, role, (err, result) => {
+        if (!role) {
+            return res.status(400).json({
+                success: false,
+                message: "Role required",
+            });
+        }
+
+        db.query(sql, [role], (err, result) => {
             if (err) {
                 console.error("Failed to insert user cause ", err.message);
                 return res.status(500).json({
@@ -46,7 +47,8 @@ exports.createRoles = async (req, res) => {
             res.status(201).json({
                 success: true,
                 message: "Role added successfully",
-                Roles: {
+                data: {
+                    id: result.insertId,
                     role,
                 },
             });
@@ -79,7 +81,7 @@ exports.updateRoles = (req, res) => {
         res.status(200).json({
             success: true,
             message: "Role updated successfully",
-            Roles: {
+            data: {
                 id,
                 role,
             },
