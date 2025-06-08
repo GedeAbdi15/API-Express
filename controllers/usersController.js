@@ -35,7 +35,7 @@ exports.getAllUsers = (req, res) => {
 
 // users : method post
 exports.createUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone } = req.body;
 
     if (!name || !email) {
         return res.status(400).json({
@@ -49,8 +49,8 @@ exports.createUser = async (req, res) => {
         const encryptedPassword = await bcrypt.hash(password, 10);
 
         const sql =
-            "INSERT INTO users (uid, name, email, password, role) VALUES (?, ?, ?, ?)";
-        const val = [uid, name, email, encryptedPassword, role];
+            "INSERT INTO users (uid, name, email, password, role, phone_number) VALUES (?, ?, ?, ?, ?, ?)";
+        const val = [uid, name, email, encryptedPassword, role, phone];
 
         db.query(sql, val, (err, result) => {
             if (err) {
@@ -70,6 +70,7 @@ exports.createUser = async (req, res) => {
                     name,
                     email,
                     password,
+                    phone,
                 },
             });
         });
@@ -85,14 +86,14 @@ exports.createUser = async (req, res) => {
 // users : method put
 exports.updateUser = async (req, res) => {
     const id = req.params.id;
-    const { role, name, email, password } = req.body;
+    const { role, name, email, password, phone } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const sql =
-            "UPDATE `users` SET `role`= ? , `name`= ? , `email`= ? , `password`= ?  WHERE `id` = ?";
-        const val = [role, name, email, hashedPassword, id];
+            "UPDATE `users` SET `role`= ? , `name`= ? , `email`= ? , `password`= ?, `phone_number` = ?  WHERE `id` = ?";
+        const val = [role, name, email, hashedPassword, phone, id];
 
         db.query(sql, val, (err, result) => {
             if (err) {
@@ -111,6 +112,7 @@ exports.updateUser = async (req, res) => {
                     role,
                     name,
                     email,
+                    phone,
                 },
             });
         });

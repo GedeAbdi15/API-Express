@@ -1,10 +1,9 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const db = require("./dbConnection");
-const bcrypt = require("bcrypt");
-
+const cors = require("cors");
 const app = express();
-const port = 3000;
+const port = 4000;
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -19,6 +18,10 @@ app.use("/users", userRoutes);
 // endpoint roles
 const roleRoutes = require("./routes/roles");
 app.use("/roles", roleRoutes);
+
+// endpoint services
+const serviceRoutes = require("./routes/services");
+app.use("/services", serviceRoutes);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
