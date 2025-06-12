@@ -26,7 +26,7 @@ exports.getAllService = (req, res) => {
 exports.createService = async (req, res) => {
     const { name, category, type, duration_days, unit, description } = req.body;
 
-    if (!name && !category && !type && !duration_days && !unit) {
+    if (!name || !category || !type || !duration_days || !unit) {
         return res.status(400).json({
             success: false,
             message: "Please fill required fields",
@@ -75,4 +75,71 @@ exports.createService = async (req, res) => {
             message: "Server error",
         });
     }
+};
+
+// service : method put
+exports.updateService = async (req, res) => {
+    const id = req.params.id;
+    const { name, category, type, duration_days, unit, description } = req.body;
+
+    try {
+        const sql =
+            "UPDATE `services` SET `name`= ? , `category`= ? , `type`= ? , `duration_days`= ?, `unit` = ?, `description` = ?  WHERE `id` = ?";
+        const val = [
+            name,
+            category,
+            type,
+            duration_days,
+            unit,
+            description,
+            id,
+        ];
+
+        db.query(sql, val, (err, result) => {
+            if (err) {
+                console.error("Failed to update service with id cause", err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Database connection error",
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "service updated successfully",
+                data: {
+                    services: result,
+                },
+            });
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
+};
+
+// service : method delete
+exports.deleteService = (req, res) => {
+    const id = req.params.id;
+    const sql = "DELETE FROM `services` WHERE `id` = ?";
+
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error(
+                "Failed to delete service with id cause",
+                err.message
+            );
+            return res.status(500).json({
+                success: false,
+                message: "Database connection error",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Service deleted successfully",
+        });
+    });
 };
