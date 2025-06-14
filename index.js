@@ -23,6 +23,10 @@ app.use("/roles", roleRoutes);
 const serviceRoutes = require("./routes/services");
 app.use("/services", serviceRoutes);
 
+// endpoint categories
+const categoryRoutes = require("./routes/category");
+app.use("/categories", categoryRoutes);
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
