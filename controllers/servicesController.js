@@ -24,9 +24,10 @@ exports.getAllService = (req, res) => {
 
 // service : method post
 exports.createService = async (req, res) => {
-    const { name, category, type, duration_days, unit, description } = req.body;
+    const { name, category, type, duration_days, unit, price, description } =
+        req.body;
 
-    if (!name || !category || !type || !duration_days || !unit) {
+    if (!name || !category || !type || !duration_days || !unit || !price) {
         return res.status(400).json({
             success: false,
             message: "Please fill required fields",
@@ -49,8 +50,16 @@ exports.createService = async (req, res) => {
 
     try {
         const sql =
-            "INSERT INTO services (name, category, type, duration_days, unit, description) VALUES (?,?,?,?,?,?)";
-        const val = [name, category, type, duration_days, unit, description];
+            "INSERT INTO services (name, category, type, duration_days, unit, price, description) VALUES (?,?,?,?,?,?,?)";
+        const val = [
+            name,
+            category,
+            type,
+            duration_days,
+            unit,
+            price,
+            description,
+        ];
 
         db.query(sql, val, (err, result) => {
             if (err) {
@@ -80,17 +89,19 @@ exports.createService = async (req, res) => {
 // service : method put
 exports.updateService = async (req, res) => {
     const id = req.params.id;
-    const { name, category, type, duration_days, unit, description } = req.body;
+    const { name, category, type, duration_days, unit, price, description } =
+        req.body;
 
     try {
         const sql =
-            "UPDATE `services` SET `name`= ? , `category`= ? , `type`= ? , `duration_days`= ?, `unit` = ?, `description` = ?  WHERE `id` = ?";
+            "UPDATE `services` SET `name`= ? , `category`= ? , `type`= ? , `duration_days`= ?, `unit` = ?, `price` = ?, `description` = ?  WHERE `id` = ?";
         const val = [
             name,
             category,
             type,
             duration_days,
             unit,
+            price,
             description,
             id,
         ];
