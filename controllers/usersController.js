@@ -28,7 +28,9 @@ exports.getAllUsers = (req, res) => {
 
         res.status(200).json({
             success: true,
-            users: results,
+            data: {
+                users: results,
+            },
         });
     });
 };
