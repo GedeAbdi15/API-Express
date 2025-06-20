@@ -27,6 +27,10 @@ app.use("/services", serviceRoutes);
 const categoryRoutes = require("./routes/category");
 app.use("/categories", categoryRoutes);
 
+// endpoint orders
+const ordersRoutes = require("./routes/orders");
+app.use("/transaction/orders", ordersRoutes);
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
