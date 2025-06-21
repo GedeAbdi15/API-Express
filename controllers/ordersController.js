@@ -3,7 +3,7 @@ const db = require("../dbConnection");
 // orders : method get
 exports.getAllOrders = (req, res) => {
     const sql =
-        "SELECT `orders`.`id`, `users`.`name` AS user_name, `users`.`phone_number`, `services`.`name` AS service_name, `master_category`.`category`, `services`.`type`, `services`.`duration_days`, `orders`.`total_weight`, `orders`.`total_item`, `services`.`unit`, `services`.`price`,`orders`.`total_price`, `orders`.`status`, `orders`.`created_at`, `orders`.`updated_at` FROM `orders` LEFT JOIN `users` ON `users`.`id` = `orders`.`users_id` LEFT JOIN `services` ON `services`.`id` = `orders`.`services_id` LEFT JOIN `master_category` ON `master_category`.`id` = `services`.`category` WHERE 1";
+        "SELECT `orders`.`id`, `users`.`id` AS users_id, `users`.`name` AS user_name, `users`.`phone_number`,`services`.`id` AS services_id, `services`.`name` AS service_name, `master_category`.`category`, `services`.`type`, `services`.`duration_days`, `orders`.`total_weight`, `orders`.`total_item`, `services`.`unit`, `services`.`price`,`orders`.`total_price`, `orders`.`status`, `orders`.`created_at`, `orders`.`updated_at` FROM `orders` LEFT JOIN `users` ON `users`.`id` = `orders`.`users_id` LEFT JOIN `services` ON `services`.`id` = `orders`.`services_id` LEFT JOIN `master_category` ON `master_category`.`id` = `services`.`category` WHERE 1";
 
     db.query(sql, (err, results) => {
         if (err) {
