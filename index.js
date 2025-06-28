@@ -31,6 +31,10 @@ app.use("/categories", categoryRoutes);
 const ordersRoutes = require("./routes/orders");
 app.use("/transaction/orders", ordersRoutes);
 
+// endpoint invoices
+const invoicesRoutes = require("./routes/invoices");
+app.use("/transaction/invoices", invoicesRoutes);
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

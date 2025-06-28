@@ -41,7 +41,7 @@ exports.createService = async (req, res) => {
         });
     }
 
-    if (type != "Express" && type != "Regular") {
+    if (type != "express" && type != "regular") {
         return res.status(400).json({
             success: false,
             message: "Type fields must be fill as 'Express' or 'Regular'",

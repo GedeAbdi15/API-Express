@@ -14,9 +14,9 @@ function generateUID() {
 }
 
 // users : method get
-exports.getAllUsers = (res) => {
+exports.getAllUsers = (req, res) => {
     const sql =
-        "SELECT `users`.`id`, `uid`, `roles`.`id` AS role_id, `roles`.`role`, `users`.`name`, `users`.`email`, `users`.`password`, `users`.`phone_number`, `users`.`created_at`, `users`.`updated_at`, `users`.`deleted_at` FROM `users` LEFT JOIN `roles` ON `roles`.`id` = `users`.`role` ";
+        "SELECT `users`.`id`, `uid`, `roles`.`id` AS role_id, `roles`.`role`, `users`.`name`, `users`.`email`, `users`.`password`, `users`.`phone_number`, `users`.`created_at`, `users`.`updated_at`, `users`.`deleted_at` FROM `users` LEFT JOIN `roles` ON `roles`.`id` = `users`.`role`";
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -38,9 +38,34 @@ exports.getAllUsers = (res) => {
     });
 };
 
+// users : method get (customer)
+exports.getCustomers = (req, res) => {
+    const sql =
+        "SELECT `users`.`id`, `uid`, `roles`.`id` AS role_id, `roles`.`role`, `users`.`name`, `users`.`email`, `users`.`password`, `users`.`phone_number`, `users`.`created_at`, `users`.`updated_at`, `users`.`deleted_at` FROM `users` LEFT JOIN `roles` ON `roles`.`id` = `users`.`role` WHERE `roles`.`role` LIKE 'customer'";
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Failed to fetch users cause ", err.message);
+            return res.status(500).json({
+                success: false,
+                message: "Database connection error",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                customers: results,
+            },
+        });
+
+        // console.log("debug : ", res);
+    });
+};
+
 // users : method post
 exports.createUser = async (req, res) => {
-    const { name, email, password, role, phone_number } = req.body;
+    const { name, email, password, role_id, phone_number } = req.body;
 
     if (!name) {
         return res.status(400).json({
@@ -52,7 +77,7 @@ exports.createUser = async (req, res) => {
     try {
         const uid = generateUID();
 
-        const encryptedPassword = null;
+        let encryptedPassword = null;
         if (password && password.trim() != "") {
             encryptedPassword = await bcrypt.hash(password, 10);
         }
@@ -64,7 +89,7 @@ exports.createUser = async (req, res) => {
             name,
             email || null,
             encryptedPassword,
-            role,
+            role_id,
             phone_number || null,
         ];
 
