@@ -1,59 +1,48 @@
 const db = require("../dbConnection");
 
 // roles : method get
-exports.getAllRoles = (req, res) => {
-    const sql = "SELECT * FROM roles";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Failed to fetch roles cause ", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+exports.getAllRoles = async (req, res) => {
+    try {
+        const result = await db`SELECT * FROM roles`;
 
         res.status(200).json({
             success: true,
             data: {
-                roles: results,
+                roles: result,
             },
         });
-    });
+    } catch (err) {
+        console.error("Failed to fetch roles cause ", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
 
 // roles : method post
 exports.createRoles = async (req, res) => {
+    const { role } = req.body;
+
+    if (!role) {
+        return res.status(400).json({
+            success: false,
+            message: "Role required",
+        });
+    }
+
     try {
-        const sql = "INSERT INTO roles (role) VALUES (?)";
-        const { role } = req.body;
+        const result = await db`INSERT INTO roles (role) VALUES (${role})`;
 
-        if (!role) {
-            return res.status(400).json({
-                success: false,
-                message: "Role required",
-            });
-        }
-
-        db.query(sql, [role], (err, result) => {
-            if (err) {
-                console.error("Failed to insert user cause ", err.message);
-                return res.status(500).json({
-                    success: false,
-                    message: "Database connection error",
-                });
-            }
-
-            res.status(201).json({
-                success: true,
-                message: "Role added successfully",
-                data: {
-                    id: result.insertId,
-                    role,
-                },
-            });
+        res.status(201).json({
+            success: true,
+            message: "Role added successfully",
+            data: {
+                role: result,
+            },
         });
     } catch (err) {
+        console.error("Failed to insert user cause ", err.message);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -62,50 +51,49 @@ exports.createRoles = async (req, res) => {
 };
 
 // roles : method put
-exports.updateRoles = (req, res) => {
+exports.updateRoles = async (req, res) => {
     const id = req.params.id;
     const { role } = req.body;
 
-    const sql = "UPDATE `roles` SET `role`= ? WHERE `id` = ?";
-    const val = [role, id];
-
-    db.query(sql, val, (err, result) => {
-        if (err) {
-            console.error("Database error: ", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+    try {
+        const result = await db`
+            UPDATE roles SET role= ${role} WHERE id = ${id}`;
 
         res.status(200).json({
             success: true,
             message: "Role updated successfully",
             data: {
-                id,
-                role,
+                role: result,
             },
         });
-    });
+    } catch (error) {
+        console.error("Database error: ", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
 
-// roles : mehod delete
-exports.deleteRoles = (req, res) => {
+// roles : method delete
+exports.deleteRoles = async (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM `roles` WHERE `id` = ?";
 
-    db.query(sql, [id], (err, result) => {
-        if (err) {
-            console.error("Failed to delete user with id cause", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+    try {
+        const result = await db`DELETE FROM roles WHERE id = ${id}`;
 
         res.status(200).json({
             success: true,
             message: "Role deleted successfully",
+            data: {
+                role: result,
+            },
         });
-    });
+    } catch (error) {
+        console.error("Failed to delete user with id cause", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
