@@ -14,43 +14,39 @@ function generateUID() {
 }
 
 // users : method get
-exports.getAllUsers = (req, res) => {
-    const sql =
-        "SELECT `users`.`id`, `uid`, `roles`.`id` AS role_id, `roles`.`role`, `users`.`name`, `users`.`email`, `users`.`password`, `users`.`phone_number`, `users`.`created_at`, `users`.`updated_at`, `users`.`deleted_at` FROM `users` LEFT JOIN `roles` ON `roles`.`id` = `users`.`role`";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Failed to fetch users cause ", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+exports.getAllUsers = async (req, res) => {
+    try {
+        const result = await db`
+            SELECT 
+                users.id, uid, roles.id AS role_id, roles.role, 
+                users.name, users.email, users.password, users.phone_number, 
+                users.created_at, users.updated_at, users.deleted_at
+            FROM users 
+            LEFT JOIN roles ON roles.id = users.role
+        `;
 
         res.status(200).json({
             success: true,
             data: {
-                users: results,
+                users: result,
             },
         });
-
-        // console.log("debug : ", res);
-    });
+    } catch (err) {
+        console.error("Failed to fetch users cause ", err);
+        res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
 
 // users : method get (customer)
-exports.getCustomers = (req, res) => {
-    const sql =
-        "SELECT `users`.`id`, `uid`, `roles`.`id` AS role_id, `roles`.`role`, `users`.`name`, `users`.`email`, `users`.`password`, `users`.`phone_number`, `users`.`created_at`, `users`.`updated_at`, `users`.`deleted_at` FROM `users` LEFT JOIN `roles` ON `roles`.`id` = `users`.`role` WHERE `roles`.`role` LIKE 'customer'";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Failed to fetch users cause ", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+exports.getCustomers = async (req, res) => {
+    try {
+        const results = await db`
+        SELECT users.id, uid, roles.id AS role_id, roles.role, users.name, users.email, users.password, users.phone_number, users.created_at, users.updated_at, users.deleted_at FROM users LEFT JOIN roles ON roles.id = users.role WHERE roles.role ILIKE '%customer%'
+        `;
+        console.log("debug cust : ", results);
 
         res.status(200).json({
             success: true,
@@ -58,9 +54,13 @@ exports.getCustomers = (req, res) => {
                 customers: results,
             },
         });
-
-        // console.log("debug : ", res);
-    });
+    } catch (err) {
+        console.error("Failed to fetch users cause ", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
 
 // users : method post
@@ -82,36 +82,25 @@ exports.createUser = async (req, res) => {
             encryptedPassword = await bcrypt.hash(password, 10);
         }
 
-        const sql =
-            "INSERT INTO users (uid, name, email, password, role, phone_number) VALUES (?, ?, ?, ?, ?, ?)";
-        const val = [
-            uid,
-            name,
-            email || null,
-            encryptedPassword,
-            role_id,
-            phone_number || null,
-        ];
+        const result = await db`
+            INSERT INTO users (uid, name, email, password, role, phone_number) 
+            VALUES (${uid}, ${name}, ${
+            email || null
+        }, ${encryptedPassword}, ${role_id}, ${
+            phone_number || null
+        }) RETURNING id, uid, name, email, role, phone_number, created_at`;
 
-        db.query(sql, val, (err, result) => {
-            if (err) {
-                console.error("Failed to insert user cause ", err.message);
-                return res.status(500).json({
-                    success: false,
-                    message: "Database connection error",
-                });
-            }
+        console.log("result log : ", result);
 
-            res.status(201).json({
-                success: true,
-                message: "User added successfully",
-                data: {
-                    user: result,
-                },
-            });
+        res.status(201).json({
+            success: true,
+            message: "User added successfully",
+            data: {
+                user: result,
+            },
         });
     } catch (err) {
-        console.error("Error hashing password cause ", err);
+        console.error("Failed to insert user cause ", err.message);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -130,36 +119,23 @@ exports.updateUser = async (req, res) => {
             hashedPassword = await bcrypt.hash(password, 10);
         }
 
-        const sql =
-            "UPDATE `users` SET `role`= ? , `name`= ? , `email`= ? , `password`= ?, `phone_number` = ?  WHERE `id` = ?";
-        const val = [
-            role_id,
-            name,
-            email || null,
-            hashedPassword,
-            phone_number || null,
-            id,
-        ];
+        const result = await db`
+            UPDATE users SET role= ${role_id} , name= ${name} , email= ${
+            email || null
+        } , password= ${hashedPassword}, phone_number = ${
+            phone_number || null
+        }  WHERE id = ${id}
+            `;
 
-        db.query(sql, val, (err, result) => {
-            if (err) {
-                console.error("Failed to update user with id cause", err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Database connection error",
-                });
-            }
-
-            res.status(200).json({
-                success: true,
-                message: "User updated successfully",
-                data: {
-                    user: result,
-                },
-            });
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            data: {
+                user: result,
+            },
         });
     } catch (err) {
-        console.error("Error hashing password: ", err.message);
+        console.error("Failed to update user with id cause", err);
         res.status(500).json({
             success: false,
             message: "Server error while hashing password",
@@ -168,22 +144,26 @@ exports.updateUser = async (req, res) => {
 };
 
 // users : mehod delete
-exports.deleteUser = (req, res) => {
+exports.deleteUser = async (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM `users` WHERE `id` = ?";
 
-    db.query(sql, [id], (err) => {
-        if (err) {
-            console.error("Failed to delete user with id cause", err);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+    try {
+        const result = await db`
+    DELETE FROM users WHERE id = ${id}
+    `;
 
         res.status(200).json({
             success: true,
             message: "User deleted successfully",
+            data: {
+                user: result,
+            },
         });
-    });
+    } catch (err) {
+        console.error("Failed to delete user with id cause", err);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };

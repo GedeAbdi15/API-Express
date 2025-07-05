@@ -1,25 +1,24 @@
 const db = require("../dbConnection");
 
 // service : method get
-exports.getAllService = (req, res) => {
-    const sql = "SELECT * FROM services";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Failed to fetch roles cause ", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+exports.getAllService = async (req, res) => {
+    try {
+        const result = await db`
+        SELECT services.id, services.name, master_category.category, services.type, services.duration_days, services.unit, services.price, services.description, services.created_at, services.updated_at FROM services LEFT JOIN master_category ON master_category.id = services.category`;
 
         res.status(200).json({
             success: true,
             data: {
-                services: results,
+                services: result,
             },
         });
-    });
+    } catch (err) {
+        console.error("Failed to fetch roles cause ", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
 
 // service : method post
@@ -44,41 +43,25 @@ exports.createService = async (req, res) => {
     if (type != "express" && type != "regular") {
         return res.status(400).json({
             success: false,
-            message: "Type fields must be fill as 'Express' or 'Regular'",
+            message: "Type fields must be fill as 'express' or 'regular'",
         });
     }
 
     try {
-        const sql =
-            "INSERT INTO services (name, category, type, duration_days, unit, price, description) VALUES (?,?,?,?,?,?,?)";
-        const val = [
-            name,
-            category,
-            type,
-            duration_days,
-            unit,
-            price,
-            description,
-        ];
+        const result = await db`
+            INSERT INTO services (name, category, type, duration_days, unit, price, description) VALUES (${name},${category},${type},${duration_days},${unit},${
+            price ?? 0
+        }, ${description || null})`;
 
-        db.query(sql, val, (err, result) => {
-            if (err) {
-                console.error("Failed to insert service cause ", err.message);
-                return res.status(500).json({
-                    success: false,
-                    message: "Database connection error",
-                });
-            }
-
-            res.status(201).json({
-                success: true,
-                message: "Service added successfully",
-                data: {
-                    service: result,
-                },
-            });
+        res.status(201).json({
+            success: true,
+            message: "Service added successfully",
+            data: {
+                service: result,
+            },
         });
     } catch (err) {
+        console.error("Failed to insert service cause ", err.message);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -93,37 +76,18 @@ exports.updateService = async (req, res) => {
         req.body;
 
     try {
-        const sql =
-            "UPDATE `services` SET `name`= ? , `category`= ? , `type`= ? , `duration_days`= ?, `unit` = ?, `price` = ?, `description` = ?  WHERE `id` = ?";
-        const val = [
-            name,
-            category,
-            type,
-            duration_days,
-            unit,
-            price,
-            description,
-            id,
-        ];
+        const result = await db`
+            UPDATE services SET name= ${name} , category= ${category} , type= ${type} , duration_days= ${duration_days}, unit = ${unit}, price = ${price}, description = ${description}  WHERE id = ${id}`;
 
-        db.query(sql, val, (err, result) => {
-            if (err) {
-                console.error("Failed to update service with id cause", err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Database connection error",
-                });
-            }
-
-            res.status(200).json({
-                success: true,
-                message: "service updated successfully",
-                data: {
-                    services: result,
-                },
-            });
+        res.status(200).json({
+            success: true,
+            message: "service updated successfully",
+            data: {
+                services: result,
+            },
         });
     } catch (err) {
+        console.error("Failed to update service with id cause", err);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -132,25 +96,25 @@ exports.updateService = async (req, res) => {
 };
 
 // service : method delete
-exports.deleteService = (req, res) => {
+exports.deleteService = async (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM `services` WHERE `id` = ?";
 
-    db.query(sql, [id], (err, result) => {
-        if (err) {
-            console.error(
-                "Failed to delete service with id cause",
-                err.message
-            );
-            return res.status(500).json({
-                success: false,
-                message: "Database connection error",
-            });
-        }
+    try {
+        const result = await db`
+        DELETE FROM services WHERE id = ${id}`;
 
         res.status(200).json({
             success: true,
             message: "Service deleted successfully",
+            data: {
+                service: result,
+            },
         });
-    });
+    } catch (err) {
+        console.error("Failed to delete service with id cause", err.message);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection error",
+        });
+    }
 };
