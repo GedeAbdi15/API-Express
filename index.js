@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const serverless = require("serverless-http");
 const app = express();
-const port = 4000;
 
 app.use(cors());
 
@@ -35,6 +35,5 @@ app.use("/transaction/orders", ordersRoutes);
 const invoicesRoutes = require("./routes/invoices");
 app.use("/transaction/invoices", invoicesRoutes);
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+module.exports = app;
+module.exports.handler = serverless(app);
