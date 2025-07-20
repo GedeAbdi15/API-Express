@@ -1,9 +1,9 @@
-const db = require("../dbConnection");
+const prisma = require("../prisma/prismaClient");
 
 // roles : method get
 exports.getAllRoles = async (req, res) => {
     try {
-        const result = await db`SELECT * FROM roles`;
+        const result = await prisma.roles.findMany();
 
         res.status(200).json({
             success: true,
@@ -32,7 +32,17 @@ exports.createRoles = async (req, res) => {
     }
 
     try {
-        const result = await db`INSERT INTO roles (role) VALUES (${role})`;
+        const result = await prisma.roles.create({
+            data: {
+                role: role,
+            },
+            select: {
+                id: true,
+                role: true,
+                created_at: true,
+                updated_at: true,
+            },
+        });
 
         res.status(201).json({
             success: true,
@@ -56,8 +66,20 @@ exports.updateRoles = async (req, res) => {
     const { role } = req.body;
 
     try {
-        const result = await db`
-            UPDATE roles SET role= ${role} WHERE id = ${id}`;
+        const result = await prisma.roles.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                role: role,
+            },
+            select: {
+                id: true,
+                role: true,
+                created_at: true,
+                updated_at: true,
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -80,7 +102,11 @@ exports.deleteRoles = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const result = await db`DELETE FROM roles WHERE id = ${id}`;
+        const result = await prisma.roles.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
 
         res.status(200).json({
             success: true,

@@ -1,0 +1,211 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Portfolio Project",
+        "version": "1.0.0",
+        "description": "API documentation for Express-based serverless API deployed to Vercel"
+    },
+    "servers": [
+        {
+            "url": "https://api-express-ebon.vercel.app",
+            "description": "Production Server (Vercel)"
+        },
+        {
+            "url": "http://localhost:3000",
+            "description": "Development Server"
+        }
+    ],
+    "paths": {
+        "/users": {
+            "get": {
+                "summary": "Get all users",
+                "tags": [
+                    "Users"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of users"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a user",
+                "tags": [
+                    "Users"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created"
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "summary": "Get all roles",
+                "tags": [
+                    "Roles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of roles"
+                    }
+                }
+            }
+        },
+        "/services": {
+            "get": {
+                "summary": "Get all services",
+                "tags": [
+                    "Services"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of services"
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "summary": "Get all categories",
+                "tags": [
+                    "Categories"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of categories"
+                    }
+                }
+            }
+        },
+        "/transaction/orders": {
+            "get": {
+                "summary": "Get all orders",
+                "tags": [
+                    "Orders"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of orders"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new order",
+                "tags": [
+                    "Orders"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Order"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Order created"
+                    }
+                }
+            }
+        },
+        "/transaction/invoices": {
+            "get": {
+                "summary": "Get all invoices",
+                "tags": [
+                    "Invoices"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of invoices"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create invoices",
+                "tags": [
+                    "Invoices"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "orders_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Invoices created"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ]
+            },
+            "Order": {
+                "type": "object",
+                "properties": {
+                    "service_id": {
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "service_id",
+                    "category_id",
+                    "user_id"
+                ]
+            }
+        }
+    }
+}
