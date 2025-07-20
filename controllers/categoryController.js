@@ -1,10 +1,10 @@
 const db = require("../dbConnection");
+const prisma = require("../prisma/prismaClient");
 
 // category : method get
 exports.getAllCategory = async (req, res) => {
     try {
-        const result = await db`
-    SELECT * FROM master_category`;
+        const result = await prisma.master_category.findMany();
 
         res.status(200).json({
             success: true,
@@ -33,8 +33,17 @@ exports.createCategory = async (req, res) => {
     }
 
     try {
-        const result = await db`
-            INSERT INTO master_category (category) VALUES (${category})`;
+        const result = await prisma.master_category.create({
+            data: {
+                category: category,
+            },
+            select: {
+                id: true,
+                category: true,
+                created_at: true,
+                updated_at: true,
+            },
+        });
 
         res.status(201).json({
             success: true,
@@ -59,8 +68,20 @@ exports.updateCategory = async (req, res) => {
     const { category } = req.body;
 
     try {
-        const result = await db`
-            UPDATE master_category SET category= ${category} WHERE id = ${id}`;
+        const result = await prisma.master_category.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                category: category,
+            },
+            select: {
+                id: true,
+                category: true,
+                created_at: true,
+                updated_at: true,
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -83,8 +104,11 @@ exports.deleteCategory = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const result = await db`
-        DELETE FROM master_category WHERE id = ${id}`;
+        const result = await prisma.master_category.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
 
         res.status(200).json({
             success: true,
