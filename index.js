@@ -34,5 +34,5 @@ app.use("/transaction/orders", ordersRoutes);
 const invoicesRoutes = require("./routes/invoices");
 app.use("/transaction/invoices", invoicesRoutes);
 
-module.exports = app;
+// module.exports = app;
 module.exports.handler = serverless(app);
