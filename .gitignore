@@ -1,6 +1,6 @@
 # Ignore node_modules
-node_modules/
+# node_modules/
 # dbConnection.js
 #/generated/prisma
-.env
+# .env
 .vercel
