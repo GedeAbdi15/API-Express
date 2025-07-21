@@ -3,12 +3,7 @@
     "builds": [
         {
             "src": "api/index.js",
-            "use": "@vercel/node",
-            "config": {
-                "includeFiles": [
-                    "generated/prisma/**"
-                ]
-            }
+            "use": "@vercel/node"
         }
     ],
     "routes": [
