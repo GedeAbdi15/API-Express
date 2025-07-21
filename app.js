@@ -18,27 +18,27 @@ app.get("/", (req, res) => {
 });
 
 // endpoint users
-const userRoutes = require("../routes/users");
+const userRoutes = require("./routes/users");
 app.use("/users", userRoutes);
 
 // endpoint roles
-const roleRoutes = require("../routes/roles");
+const roleRoutes = require("./routes/roles");
 app.use("/roles", roleRoutes);
 
 // endpoint services
-const serviceRoutes = require("../routes/services");
+const serviceRoutes = require("./routes/services");
 app.use("/services", serviceRoutes);
 
 // endpoint categories
-const categoryRoutes = require("../routes/category");
+const categoryRoutes = require("./routes/category");
 app.use("/categories", categoryRoutes);
 
 // endpoint orders
-const ordersRoutes = require("../routes/orders");
+const ordersRoutes = require("./routes/orders");
 app.use("/transaction/orders", ordersRoutes);
 
 // endpoint invoices
-const invoicesRoutes = require("../routes/invoices");
+const invoicesRoutes = require("./routes/invoices");
 app.use("/transaction/invoices", invoicesRoutes);
 
 module.exports = app;
