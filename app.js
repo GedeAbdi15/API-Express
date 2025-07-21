@@ -17,12 +17,28 @@ app.get("/", (req, res) => {
     res.send("Hello! Check /api-docs for documentation");
 });
 
-// Routes
-app.use("/users", require("./routes/users"));
-app.use("/roles", require("./routes/roles"));
-app.use("/services", require("./routes/services"));
-app.use("/categories", require("./routes/category"));
-app.use("/transaction/orders", require("./routes/orders"));
-app.use("/transaction/invoices", require("./routes/invoices"));
+// endpoint users
+const userRoutes = require("../routes/users");
+app.use("/users", userRoutes);
+
+// endpoint roles
+const roleRoutes = require("../routes/roles");
+app.use("/roles", roleRoutes);
+
+// endpoint services
+const serviceRoutes = require("../routes/services");
+app.use("/services", serviceRoutes);
+
+// endpoint categories
+const categoryRoutes = require("../routes/category");
+app.use("/categories", categoryRoutes);
+
+// endpoint orders
+const ordersRoutes = require("../routes/orders");
+app.use("/transaction/orders", ordersRoutes);
+
+// endpoint invoices
+const invoicesRoutes = require("../routes/invoices");
+app.use("/transaction/invoices", invoicesRoutes);
 
 module.exports = app;
