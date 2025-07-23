@@ -1,10 +1,27 @@
-const db = require("../dbConnection");
+const prisma = require("../prisma/prismaClient");
 
 // orders : method get
 exports.getAllOrders = async (req, res) => {
     try {
-        const result = await db`
-        SELECT orders.id, users.id AS users_id, users.name AS user_name, users.phone_number, services.id AS services_id, services.name AS service_name, master_category.category, services.type, services.duration_days, orders.total_weight, orders.total_item, services.unit, services.price, orders.total_price, orders.status, orders.created_at, orders.updated_at FROM orders LEFT JOIN users ON users.id = orders.users_id LEFT JOIN services ON services.id = orders.services_id LEFT JOIN master_category ON master_category.id = services.category`;
+        const result = await prisma.orders.findMany({
+            include: {
+                users: {
+                    select: {
+                        name: true,
+                        phone_number: true,
+                    },
+                },
+                services: {
+                    select: {
+                        name: true,
+                        type: true,
+                        duration_days: true,
+                        unit: true,
+                        price: true,
+                    },
+                },
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -39,25 +56,41 @@ exports.createOrders = async (req, res) => {
         });
     }
 
-    if (status != "on progress" && status != "done") {
+    if (status != "on_progress" && status != "done") {
         return res.status(400).json({
             success: false,
-            message: "Status fields must be fill as 'on progress' or 'done'",
+            message: "Status fields must be fill as 'on_progress' or 'done'",
         });
     }
 
     try {
-        const result = await db`
-        INSERT INTO orders 
-        (users_id, services_id, total_weight, total_item, total_price, status) 
-        VALUES (
-            ${users_id}, 
-            ${services_id}, 
-            ${total_weight}, 
-            ${total_item}, 
-            ${total_price}, 
-            ${status}
-        )`;
+        const result = await prisma.orders.create({
+            data: {
+                users_id: parseInt(users_id),
+                services_id: parseInt(services_id),
+                total_weight: parseFloat(total_weight),
+                total_item: parseInt(total_item) || null,
+                total_price: parseInt(total_price) || 0,
+                status: status,
+            },
+            include: {
+                users: {
+                    select: {
+                        name: true,
+                        phone_number: true,
+                    },
+                },
+                services: {
+                    select: {
+                        name: true,
+                        type: true,
+                        duration_days: true,
+                        unit: true,
+                        price: true,
+                    },
+                },
+            },
+        });
 
         res.status(201).json({
             success: true,
@@ -88,16 +121,36 @@ exports.updateOrders = async (req, res) => {
     } = req.body;
 
     try {
-        const result = await db`
-        UPDATE orders 
-        SET 
-            users_id = ${users_id},
-            services_id = ${services_id},
-            total_weight = ${total_weight},
-            total_item = ${total_item},
-            total_price = ${total_price},
-            status = ${status}
-        WHERE id = ${id}`;
+        const result = await prisma.orders.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                users_id: parseInt(users_id),
+                services_id: parseInt(services_id),
+                total_weight: parseFloat(total_weight),
+                total_item: parseInt(total_item) || null,
+                total_price: parseInt(total_price) || 0,
+                status: status,
+            },
+            include: {
+                users: {
+                    select: {
+                        name: true,
+                        phone_number: true,
+                    },
+                },
+                services: {
+                    select: {
+                        name: true,
+                        type: true,
+                        duration_days: true,
+                        unit: true,
+                        price: true,
+                    },
+                },
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -120,8 +173,11 @@ exports.deleteOrders = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const result = await db`
-    DELETE FROM orders WHERE id = ?${id}`;
+        const result = await prisma.orders.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
 
         res.status(200).json({
             success: true,

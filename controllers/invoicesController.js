@@ -1,31 +1,30 @@
-const db = require("../dbConnection");
+const prisma = require("../prisma/prismaClient");
 
 // invoices : method get
 exports.getAllInvoices = async (req, res) => {
     try {
-        const result = await db`
-    SELECT 
-        invoices.id, 
-        invoices.invoice_number, 
-        invoices.orders_id, 
-        users.name AS user_name, 
-        users.phone_number AS phone_number, 
-        services.name AS service_name, 
-        orders.total_weight, 
-        orders.total_item, 
-        services.unit, 
-        orders.total_price, 
-        invoices.payment_status, 
-        invoices.pay_at, 
-        invoices.created_at, 
-        invoices.updated_at
-    FROM invoices
-    LEFT JOIN orders ON invoices.orders_id = orders.id
-    LEFT JOIN users ON orders.users_id = users.id
-    LEFT JOIN services ON orders.services_id = services.id
-`;
+        const result = await prisma.invoices.findMany({
+            include: {
+                orders: {
+                    include: {
+                        users: {
+                            select: {
+                                name: true,
+                                phone_number: true,
+                            },
+                        },
+                        services: {
+                            select: {
+                                name: true,
+                                unit: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
 
-        res.status(200).json({
+        res.status(200).send({
             success: true,
             data: {
                 invoices: result,
@@ -60,8 +59,30 @@ exports.createInvoices = async (req, res) => {
     }
 
     try {
-        const result = await db`
-            INSERT INTO invoices (orders_id, invoice_number) VALUES (${orders_id}, ${invoice_number})`;
+        const result = await prisma.invoices.create({
+            data: {
+                orders_id: orders_id,
+                invoice_number: invoice_number,
+            },
+            include: {
+                orders: {
+                    include: {
+                        users: {
+                            select: {
+                                name: true,
+                                phone_number: true,
+                            },
+                        },
+                        services: {
+                            select: {
+                                name: true,
+                                unit: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
 
         res.status(201).json({
             success: true,
@@ -85,8 +106,34 @@ exports.updateInvoices = async (req, res) => {
     const { orders_id, pay_at, payment_status } = req.body;
 
     try {
-        const result = await db`
-        UPDATE invoices SET orders_id= ${orders_id}, pay_at= ${pay_at}, payment_status= ${payment_status} WHERE id = ${id}`;
+        const result = await prisma.invoices.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                orders_id: parseInt(orders_id),
+                payment_status: payment_status,
+                pay_at: payment_status == "paid" ? new Date() : null,
+            },
+            include: {
+                orders: {
+                    include: {
+                        users: {
+                            select: {
+                                name: true,
+                                phone_number: true,
+                            },
+                        },
+                        services: {
+                            select: {
+                                name: true,
+                                unit: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -109,8 +156,11 @@ exports.deleteInvoices = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const result = await db`
-    DELETE FROM invoices WHERE id = ${id}`;
+        const result = await prisma.invoices.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
 
         res.status(200).json({
             success: true,

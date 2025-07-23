@@ -1,4 +1,3 @@
-const db = require("../dbConnection");
 const prisma = require("../prisma/prismaClient");
 
 // category : method get
