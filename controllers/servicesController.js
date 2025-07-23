@@ -1,10 +1,13 @@
-const db = require("../dbConnection");
+const prisma = require("../prisma/prismaClient");
 
 // service : method get
 exports.getAllService = async (req, res) => {
     try {
-        const result = await db`
-        SELECT services.id, services.name, master_category.category, services.type, services.duration_days, services.unit, services.price, services.description, services.created_at, services.updated_at FROM services LEFT JOIN master_category ON master_category.id = services.category`;
+        const result = await prisma.services.findMany({
+            include: {
+                master_category: true,
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -48,10 +51,24 @@ exports.createService = async (req, res) => {
     }
 
     try {
-        const result = await db`
-            INSERT INTO services (name, category, type, duration_days, unit, price, description) VALUES (${name},${category},${type},${duration_days},${unit},${
-            price ?? 0
-        }, ${description || null})`;
+        const result = await prisma.services.create({
+            data: {
+                name: name,
+                category: parseInt(category),
+                type: type,
+                duration_days: parseInt(duration_days),
+                unit: unit,
+                price: price ?? 0,
+                description: description || null,
+            },
+            include: {
+                master_category: {
+                    select: {
+                        category: true,
+                    },
+                },
+            },
+        });
 
         res.status(201).json({
             success: true,
@@ -76,8 +93,27 @@ exports.updateService = async (req, res) => {
         req.body;
 
     try {
-        const result = await db`
-            UPDATE services SET name= ${name} , category= ${category} , type= ${type} , duration_days= ${duration_days}, unit = ${unit}, price = ${price}, description = ${description}  WHERE id = ${id}`;
+        const result = await prisma.services.update({
+            where: {
+                id: parseInt(id),
+            },
+            data: {
+                name: name,
+                category: parseInt(category),
+                type: type,
+                duration_days: parseInt(duration_days),
+                unit: unit,
+                price: price ?? 0,
+                description: description || null,
+            },
+            include: {
+                master_category: {
+                    select: {
+                        category: true,
+                    },
+                },
+            },
+        });
 
         res.status(200).json({
             success: true,
@@ -100,8 +136,11 @@ exports.deleteService = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const result = await db`
-        DELETE FROM services WHERE id = ${id}`;
+        const result = await prisma.services.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
 
         res.status(200).json({
             success: true,

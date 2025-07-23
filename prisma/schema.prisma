@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -36,7 +35,7 @@ model orders {
   services_id  Int?
   total_weight Float?
   total_item   Int?
-  total_price  BigInt       @default(0)
+  total_price  Int       @default(0)
   status       order_status
   created_at   DateTime?    @default(now()) @db.Timestamp(6)
   updated_at   DateTime?    @db.Timestamp(6)
@@ -62,7 +61,7 @@ model services {
   type            service_type?
   duration_days   Int              @default(0)
   unit            service_unit?
-  price           BigInt           @default(0)
+  price           Int           @default(0)
   description     String?
   created_at      DateTime         @default(now()) @db.Timestamp(6)
   updated_at      DateTime?        @db.Timestamp(6)
@@ -93,7 +92,6 @@ enum order_status {
 
 enum payment_status_enum {
   not_paid       @map("not paid")
-  partially_paid @map("partially paid")
   paid
 }
 
